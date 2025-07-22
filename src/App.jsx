@@ -2,6 +2,10 @@ import { useEffect, useRef, useState } from 'react'
 import './App.css'
 import heuristics from './utils/heuristics';
 import dist from './utils/dist';
+import { Droppable } from './component/Droppable';
+import { DndContext, useDraggable } from '@dnd-kit/core';
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import FlagIcon from '@mui/icons-material/Flag';
 
 let cells = [];
 const cellNumber = 126
@@ -13,8 +17,48 @@ let pathButton ;
 let start 
 let end
 
-function App() {
+function DraggableComponent(props){
+  const { attributes, listeners, setNodeRef, transform } = useDraggable({
+      id: props.id,
+    });
+    const style = transform
+      ? {
+          transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+          width: "50px",
+          height: "50px",
+          alignItems: "center",
+          textAlign: "center",
+          justifyContent: "center",
+          margin: "4"
+        }
+      : {
+        width: "50px",
+        height: "50px",
+        
+        alignItems: "center",
+        textAlign: "center",
+        justifyContent: "center",
+        margin: "4"
+      };
 
+    return (
+      <button ref={setNodeRef} style={style} {...listeners} {...attributes}>
+        {props.children}
+       
+      </button>
+    );
+}
+function App() {
+  const [startparent, setstartParent] = useState(null);
+  const [endparent, setendParent] = useState(null);
+  const [startNode, setStartNode] = useState(0);
+  const [endNode, setEndNode ] = useState(53)
+  const draggableMarkup = (
+    <DraggableComponent id="draggable"><ArrowForwardIosIcon style={{marginLeft: "-5px"}}/></DraggableComponent>
+  );
+  const draggableMarkupEnd = (
+    <DraggableComponent id="draggable-end"><FlagIcon style={{marginLeft: "-5px"}}/></DraggableComponent>
+  );
 
 
   useEffect(()=>{
@@ -22,31 +66,60 @@ function App() {
     for(let i = 0 ; i < cellNumber; i++){
       cells[i].cell = cellDivs[i]
     }
-    start = cells[15]
-    end = cells[53]
-    start.cell.style.backgroundColor = 'blue'
-    end.cell.style.backgroundColor = 'blue'
+    start = cells[startNode]
+    end = cells[endNode]
     EventHandler()
   },[])
+  useEffect(() => {
+      start = cells[startNode]
+      end = cells[endNode]}
+    , [startparent, endparent])
 
   return (
   
-    <>
-      <h1>Search algorithm</h1>
+    <DndContext onDragEnd={handleDragEnd}>
+      <h1>Search Algorithm</h1>
       <button className="button" id="Astar" onClick={()=> {
         reset()
         aStar()
         }}>Find Path</button>
+        <div style={{margin: "10px", display: "flex", alignItems: "center", textAlign: "center", justifyContent: "center"}}>
+          <div style={{margin: "10px"}}>
+            {startparent === null ? draggableMarkup : null}
+          </div>
+          <div style={{margin: "10px"}}>
+            {endparent === null ? draggableMarkupEnd: null}
+          </div>
+        </div>
+        
       <div className='container'>
         <div id="grid">
-          {cells.map(cell => <div id={`cell ${cell.i}`} key={`cell ${cell.i}`} className='cell' onClick={()=>EventHandler(cell.i)}>
-            
-          </div>)}
+          {cells.map(cell => <Droppable key={cell.i} id={cell.i}><div id={`cell ${cell.i}`} key={`cell ${cell.i}`} className='cell' onClick={()=>EventHandler(cell.i)}>
+            {startparent === cell.i ? draggableMarkup : null}
+            {endparent == cell.i ? draggableMarkupEnd: null}
+          </div></Droppable>)}
          
         </div>
       </div>
-    </>
+    </DndContext>
   )
+  function handleDragEnd(event) {
+    const {active , over} = event;
+    const target = document.getElementById(`cell ${over.id}`)
+    
+
+    // If the item is dropped over a container, set it as the parent
+    // otherwise reset the parent to `null`
+    if(active.id == "draggable"){
+      setstartParent(over ? over.id : null);
+      setStartNode(over.id)
+    
+    }else{
+      setendParent(over ? over.id : null)
+      setEndNode(over.id)
+    }
+    
+  }
 }
 function aStar (){
   let opened = [];
@@ -114,15 +187,17 @@ function aStar (){
       })
       
   }
-  console.log(path)
-  for (let i=0; i<=path.length; i++) { 
+  
+  for (let i=0; i<path.length; i++) { 
       task(i); 
   } 
       
   function task(i) { 
   setTimeout(function() { 
       if(path[i] != start && path[i] != end)
-      path[i].cell.style.backgroundColor = 'yellow'        
+       
+        path[i].cell.style.backgroundColor = 'yellow'  
+        
   }, 50 * i); 
   } 
 }
@@ -138,7 +213,7 @@ function EventHandler(parentID){
       cell.cell.style.backgroundColor = 'black'
     }
   }
-  console.log(cell)
+  
 }
 function recontructPath(current){
   let path = [];
