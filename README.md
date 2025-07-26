@@ -1,13 +1,49 @@
-# React + Vite
+# A* Pathfinding Visualizer
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+#### Video Demo: https://www.youtube.com/watch?v=8HOlMG2158E
+#### Description:
 
-Currently, two official plugins are available:
+This is a visual and interactive implementation of the **A\*** (A-Star) pathfinding algorithm, built using **React.js** for my final project in **CS50**. The A* algorithm is widely used in navigation systems, games, and AI applications due to its optimal balance between performance and accuracy when finding the shortest path between two points.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+This project enables users to place a **start point**, **end point**, and **obstacles** (walls) on a customizable grid. Once configured, the algorithm calculates the optimal path in real time, providing a clear, animated visualization of the process.
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
-"# Path-finding-algorithm" 
+## Key Features
+
+- 🧭 **Interactive Grid:** Click on grid cells to add or remove obstacles.
+- 🚩 **Drag-and-Drop Start & End Points:** Intuitive drag support using `@dnd-kit/core`.
+- 🔍 **Real-Time A\* Algorithm Visualization:** Watch how the algorithm explores nodes step-by-step.
+- 🔁 **Reset Button:** Clear the board and run new simulations easily.
+- 💡 **Custom Heuristics & Distance Functions:** Uses Euclidean distance for cost estimation and calculation.
+
+---
+
+## Technologies Used
+
+- **React.js** for component-based UI
+- **JavaScript (ES6+)** for logic
+- **@dnd-kit/core** for drag-and-drop support
+- **Material UI Icons** for start and goal node visuals
+- **CSS** for styling and animation effects
+
+---
+
+## File Breakdown
+
+### `App.jsx`
+
+This is the core of the application. It handles:
+
+- Initializing the grid with a fixed number of cells.
+- Managing the state for the start and end nodes.
+- Handling drag-and-drop placement of these nodes.
+- Running the A\* algorithm and animating the result.
+- Managing interactions like adding walls or resetting the grid.
+
+### `utils/heuristics.js`
+
+Defines the **heuristic function** used by A\*. It uses the Euclidean distance between the current cell and the goal to estimate the remaining cost.
+
+```js
+function heuristics(x, y, ending)
